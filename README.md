@@ -21,21 +21,24 @@ usage: proxy command line usage
 ```
 
 ### 代理的接口如下
+- 设置mock规则
 ```
-设置mock规则
 curl --location 'https://127.0.0.1:8443/__proxyApi/setMockRule' \
 --header 'Content-Type: application/json' \
 --data '{"targetProtocol": "https", "targetIP":"dev.kt.looklook.cn", "targetPort":443, "mockUri": "/getDataNodeList", "mockResponseStatusCode":200, "mockResponseBody": "mock返回的,hello,world"}'
-
-清空mock规则
+```
+- 清空mock规则
+```
 curl --location 'https://127.0.0.1:8443/__proxyApi/clearMockRule'
-
-删除mock规则
+```
+- 删除mock规则
+```
 curl --location 'https://127.0.0.1:8443/__proxyApi/deleteMockRule' \
 --header 'Content-Type: application/json' \
 --data '{"targetProtocol": "https", "targetIP":"dev.kt.looklook.cn", "targetPort":443, "mockUri": "/getDataNodeList", "mockResponseStatusCode":200, "mockResponseBody": "mock返回的"}'
-
-获取所有mock规则
+```
+- 获取所有mock规则
+```
 curl --location 'https://127.0.0.1:8443/__proxyApi/getAllMockRule'
 ```
 
