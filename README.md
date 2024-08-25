@@ -1,8 +1,8 @@
-*** 启动mock代理命令
+### 启动mock代理命令
 ```
 java -jar mock-proxy-1.0-SNAPSHOT-jar-with-dependencies.jar -p 8443 -tip dev.kt.looklook.cn -protocol https -jks ./jks-keystore.jks
 ```
-*** 命令行参数说明
+### 命令行参数说明
 ```
 usage: proxy command line usage
  -jks,--jks <arg>                    Specify the jks file path.
@@ -20,7 +20,7 @@ usage: proxy command line usage
  -U,--username <arg>                 Specify the username.
 ```
 
-*** 代理的接口如下
+### 代理的接口如下
 ```
 设置mock规则
 curl --location 'https://127.0.0.1:8443/__proxyApi/setMockRule' \
