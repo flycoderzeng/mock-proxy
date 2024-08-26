@@ -1,7 +1,8 @@
 ### 介绍
 一个http和https服务接口mock代理的工具，可以设置mock的接口和响应码、响应报文。
 
-![img.png](img.png)
+![产品开发流程图](https://github.com/user-attachments/assets/1d07580c-fbb9-4a45-be51-234b6b6a741e)
+
 ### 启动mock代理命令
 ```
 java -jar mock-proxy-1.0-SNAPSHOT-jar-with-dependencies.jar -p 8443 -tip dev.kt.looklook.cn -protocol https -jks ./jks-keystore.jks
