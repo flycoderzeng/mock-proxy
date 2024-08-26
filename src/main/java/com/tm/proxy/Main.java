@@ -69,12 +69,17 @@ public class Main {
                     return;
                 }
                 String targetUrl = targetProtocol + "://" + targetIP + ":" + targetPort + apiPath;
-                if (MOCK_RULE_MAP.containsKey(targetUrl)) {
+                if (MOCK_RULE_MAP.containsKey(targetUrl) && MOCK_RULE_MAP.get(targetUrl) != null && MOCK_RULE_MAP.get(targetUrl).getMaxWorkNum().get() > 0) {
                     try {
                         mockReturn(baseRequest, response, targetUrl);
                     } catch (Exception e) {
                         e.printStackTrace();
                         returnBasicResponse(response, HttpStatus.INTERNAL_SERVER_ERROR_500, BaseResponse.baseFail("Error: " + e.getMessage()), baseRequest);
+                    } finally {
+                        final MockRule mockRule = MOCK_RULE_MAP.get(targetUrl);
+                        if(mockRule != null) {
+                            mockRule.getMaxWorkNum().getAndDecrement();
+                        }
                     }
                     return;
                 }
