@@ -7,6 +7,7 @@ import org.apache.commons.cli.*;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
+import org.eclipse.jetty.client.util.StringContentProvider;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -112,6 +113,11 @@ public class Main {
                     targetRequest.header(headerName, request.getHeader(headerName));
                 }
             }
+            StringBuilder content = getRequestBody(request);
+            if(StringUtils.isNoneBlank(content)) {
+                System.out.println("Request Content: " + content);
+                targetRequest.content(new StringContentProvider(content.toString()));
+            }
             final ContentResponse contentResponse = targetRequest.send();
 
             response.setStatus(contentResponse.getStatus());
@@ -119,7 +125,9 @@ public class Main {
                 response.addHeader(headerName, contentResponse.getHeaders().get(headerName));
             }
 
-            response.getWriter().print(contentResponse.getContentAsString());
+            String contentAsString = contentResponse.getContentAsString();
+            System.out.println("Response Content: " + contentAsString);
+            response.getWriter().print(contentAsString);
             baseRequest.setHandled(true);
         } catch (Exception e) {
             e.printStackTrace();
@@ -149,13 +157,8 @@ public class Main {
 
     private static void handleProxyApi(String apiPath, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws Exception {
         System.out.println("调用代理接口: " + apiPath);
-        InputStream inputStream = request.getInputStream();
-        byte[] buffer = new byte[1024];
-        int bytesRead;
-        StringBuilder content = new StringBuilder();
-        while ((bytesRead = inputStream.read(buffer)) != -1) {
-            content.append(new String(buffer, 0, bytesRead));
-        }
+        StringBuilder content = getRequestBody(request);
+
         System.out.println("配置mock规则请求体内容：" + content);
         if (apiPath.equals("/__proxyApi/setMockRule")) {
             System.out.println("设置mock规则");
@@ -174,6 +177,18 @@ public class Main {
             System.out.println("非法的接口");
             returnBasicResponse(response, HttpStatus.INTERNAL_SERVER_ERROR_500, BaseResponse.baseFail("invalid api"), baseRequest);
         }
+    }
+
+    private static StringBuilder getRequestBody(HttpServletRequest request) throws IOException {
+        InputStream inputStream = request.getInputStream();
+        byte[] buffer = new byte[1024];
+        int bytesRead;
+        StringBuilder content = new StringBuilder();
+        while ((bytesRead = inputStream.read(buffer)) != -1) {
+            content.append(new String(buffer, 0, bytesRead));
+        }
+        inputStream.close();
+        return content;
     }
 
     private static void deleteMockRule(Request baseRequest, HttpServletResponse response, StringBuilder content) throws Exception {
