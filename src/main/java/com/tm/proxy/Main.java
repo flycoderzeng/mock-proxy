@@ -1,7 +1,6 @@
 package com.tm.proxy;
 
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import org.apache.commons.cli.*;
 import org.apache.commons.lang3.StringUtils;
@@ -34,6 +33,7 @@ public class Main {
     public static final String OPTION_PASSWORD = "password";
     public static final String PROXY_COMMAND_LINE_USAGE = "proxy command line usage";
     public static final String CONTENT_TYPE = "Content-Type";
+    public static final String PROTOCOL_HTTPS = "https";
     private static int port;
     private static String targetIP;
     private static String targetPort;
@@ -85,7 +85,7 @@ public class Main {
                 }
 
                 HttpClient httpClient;
-                if (StringUtils.equals(targetProtocol, "https")) {
+                if (StringUtils.equals(targetProtocol, PROTOCOL_HTTPS)) {
                     SslContextFactory.Client sslContextFactory = new SslContextFactory.Client();
                     sslContextFactory.setTrustAll(true);
                     sslContextFactory.setValidateCerts(false);
@@ -165,22 +165,28 @@ public class Main {
         StringBuilder content = getRequestBody(request);
 
         System.out.println("配置mock规则请求体内容：" + content);
-        if (apiPath.equals("/__proxyApi/setMockRule")) {
-            System.out.println("设置mock规则");
-            setMockRule(baseRequest, response, content);
-        } else if (apiPath.equals("/__proxyApi/clearMockRule")) {
-            System.out.println("清空mock规则");
-            MOCK_RULE_MAP.clear();
-            returnBasicResponse(response, HttpStatus.OK_200, BaseResponse.baseSuccess("清空mock规则成功"), baseRequest);
-        } else if (apiPath.equals("/__proxyApi/deleteMockRule")) {
-            System.out.println("删除mock规则");
-            deleteMockRule(baseRequest, response, content);
-        } else if (apiPath.equals("/__proxyApi/getAllMockRule")) {
-            System.out.println("获取所有mock规则");
-            returnBasicResponse(response, HttpStatus.OK_200, BaseResponse.baseSuccess(MOCK_RULE_MAP), baseRequest);
-        } else {
-            System.out.println("非法的接口");
-            returnBasicResponse(response, HttpStatus.INTERNAL_SERVER_ERROR_500, BaseResponse.baseFail("invalid api"), baseRequest);
+        switch (apiPath) {
+            case "/__proxyApi/setMockRule":
+                System.out.println("设置mock规则");
+                setMockRule(baseRequest, response, content);
+                break;
+            case "/__proxyApi/clearMockRule":
+                System.out.println("清空mock规则");
+                MOCK_RULE_MAP.clear();
+                returnBasicResponse(response, HttpStatus.OK_200, BaseResponse.baseSuccess("清空mock规则成功"), baseRequest);
+                break;
+            case "/__proxyApi/deleteMockRule":
+                System.out.println("删除mock规则");
+                deleteMockRule(baseRequest, response, content);
+                break;
+            case "/__proxyApi/getAllMockRule":
+                System.out.println("获取所有mock规则");
+                returnBasicResponse(response, HttpStatus.OK_200, BaseResponse.baseSuccess(MOCK_RULE_MAP), baseRequest);
+                break;
+            default:
+                System.out.println("非法的接口");
+                returnBasicResponse(response, HttpStatus.INTERNAL_SERVER_ERROR_500, BaseResponse.baseFail("invalid api"), baseRequest);
+                break;
         }
     }
 
@@ -215,7 +221,7 @@ public class Main {
         if (StringUtils.isBlank(mockRule.getMockUri())) {
             throw new Exception("目标接口路径不能为空");
         }
-        if (StringUtils.equals(mockRule.getTargetProtocol(), "https") && mockRule.getTargetPort() <= 0) {
+        if (StringUtils.equals(mockRule.getTargetProtocol(), PROTOCOL_HTTPS) && mockRule.getTargetPort() <= 0) {
             mockRule.setTargetPort(443);
         }
         if (StringUtils.equals(mockRule.getTargetProtocol(), "http") && mockRule.getTargetPort() <= 0) {
@@ -280,7 +286,7 @@ public class Main {
             if (targetPort == null && StringUtils.equals(targetProtocol, "http")) {
                 targetPort = "80";
             }
-            if (targetPort == null && StringUtils.equals(targetProtocol, "https")) {
+            if (targetPort == null && StringUtils.equals(targetProtocol, PROTOCOL_HTTPS)) {
                 targetPort = "443";
             }
         } catch (ParseException e) {
@@ -320,7 +326,7 @@ public class Main {
         // 设置 Jetty 的 HTTP 配置，这里可以配置 HTTPS 的相关设置（如果需要）
         HttpConfiguration httpConfiguration = new HttpConfiguration();
         ServerConnector connector;
-        if(StringUtils.equals(targetProtocol, "https")) {
+        if(StringUtils.equals(targetProtocol, PROTOCOL_HTTPS)) {
             SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
             sslContextFactory.setKeyStorePath(jksPath);
             sslContextFactory.setKeyStorePassword(keyPasswd);
