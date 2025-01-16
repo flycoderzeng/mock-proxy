@@ -40,7 +40,7 @@ curl --location 'https://127.0.0.1:8443/__proxyApi/clearMockRule'
 ```
 curl --location 'https://127.0.0.1:8443/__proxyApi/deleteMockRule' \
 --header 'Content-Type: application/json' \
---data '{"targetProtocol": "https", "targetIP":"dev.kt.looklook.cn", "targetPort":443, "mockUri": "/getDataNodeList", "mockResponseStatusCode":200, "mockResponseBody": "mock返回的"}'
+--data '{"targetProtocol": "https", "targetIP":"dev.kt.looklook.cn", "targetPort":443, "mockUri": "/getDataNodeList"}'
 ```
 - 获取所有mock规则
 ```
